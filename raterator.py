@@ -139,10 +139,10 @@ def _get_input():
 	if inp == '2':
 		inp = '0'
 	try:
-		assert 0 <= inp <= 1
 		score = float(inp)
+		assert 0 <= score <= 1
 		return score
-	except ValueError:
+	except (ValueError, AssertionError):
 		print("invalid input, type 'e' to exit")
 		return _get_input()
 
