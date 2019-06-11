@@ -49,6 +49,7 @@ def compare(song1: Song, song2: Song):
 
 	update(song1, song2, _get_input(), _MIN_K)
 	print('Elo:', song1.elo, song2.elo)
+	print()
 	songs.sort()  # TODO: optimize
 
 

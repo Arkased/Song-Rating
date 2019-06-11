@@ -8,14 +8,15 @@ Created on Fri Jun  7 18:43:07 2019
 
 class Song:
 	INIT_ELO = 1200
+	NUM_TRACKED_RECENT = 10
 
-	def __init__(self, name, artist, elo=INIT_ELO, recent_total_prob=None, recent_score=0, num_recent=0):
+	def __init__(self, name, artist, elo=INIT_ELO):
 		self.elo = elo
 		self.artist = artist
 		self.name = name
-		self.recent_total_prob = recent_total_prob
-		self.recent_score = recent_score
-		self.num_recent = num_recent
+		self.recent_total_prob = []
+		self.recent_score = []
+		self.num_recent = 0
 
 	def __lt__(self, other):
 		return self.elo < other.elo
@@ -30,30 +31,36 @@ class Song:
 		return self.name + ' by ' + self.artist  # + ' (' + str(self.elo) + ')'
 
 	def update_recent(self, p, score):
-		if self.recent_total_prob is None:
-			self.recent_total_prob = p
-			self.recent_score = score
+		assert 0 <= self.num_recent <= self.NUM_TRACKED_RECENT
+
+		if not self.recent_total_prob:
+			self.recent_total_prob = [p]
+			self.recent_score = [score]
 			self.num_recent = 1
-		else:
-			self.recent_total_prob += p
-			self.recent_score += score
-			self.num_recent += 1
+			return
+
+		# Remove oldest if limit is reached
+		if self.num_recent == self.NUM_TRACKED_RECENT:
+			self.recent_total_prob = self.recent_total_prob[1:]
+			self.recent_score = self.recent_score[1:]
+			self.num_recent -= 1
+		self.recent_total_prob.append(p)
+		self.recent_score.append(score)
+		self.num_recent += 1
 
 	def reset_recent(self):
-		self.recent_total_prob = None
-		self.recent_score = 0
+		self.recent_total_prob = []
+		self.recent_score = []
 		self.num_recent = 0
 
 	def calc_perf_z(self):
-		if self.recent_total_prob is None:
+		if not self.recent_total_prob:
 			return 0
 
 		n = self.num_recent
-		mu = self.recent_total_prob
+		mu = sum(self.recent_total_prob)
 		p = mu / n
-		x = self.recent_score
+		x = sum(self.recent_score)
 		q = 1 - p
-
-		print(x, mu)
 
 		return (x - mu) / (n * p * q) ** .5
