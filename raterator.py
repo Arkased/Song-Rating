@@ -27,6 +27,7 @@ def import_songs(file=DEFAULT_FILE):
 		inp = list(reader(csvfile))
 
 	all_songs = [Song(*row) for row in inp if row]
+	all_songs.sort()
 
 
 def export_songs(file=DEFAULT_FILE, print_output=False):
@@ -90,7 +91,7 @@ def _check_indecies(i1: int, i2: int):
 	:param i1: first index
 	:param i2: second index
 	"""
-	if 0 <= i2 < num_songs:
+	if i2 < 0 or i2 >= num_songs:
 		return
 
 	if i1 == i2:
@@ -104,7 +105,6 @@ def _check_indecies(i1: int, i2: int):
 			i2 += 1
 		else:
 			i2 -= 1
-
 	_compare(all_songs[i1], all_songs[i2])
 
 
@@ -134,7 +134,7 @@ def _get_input():
 	"""
 	inp = input()
 	if inp == 'e':
-		# export_songs()
+		export_songs()
 		raise SystemExit
 	if inp == '2':
 		inp = '0'
