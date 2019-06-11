@@ -12,7 +12,7 @@ from elo import update
 
 _MIN_K = 20
 DEFAULT_FILE = 'songs.csv'
-COMPETE_RANGE = 10  # all_songs can compete against other all_songs within +-COMPETE_RANGE/2 places
+COMPETE_RANGE = 20  # all_songs can compete against other all_songs within +-COMPETE_RANGE/2 places
 
 
 def import_songs(file=DEFAULT_FILE):
@@ -32,23 +32,55 @@ def export_songs(file=DEFAULT_FILE, print_output=True):
 		write.writerows(song_data)
 
 
-def _get_input():
-	inp = input()
-	if inp == 'e':
-		# export_songs()
-		raise SystemExit
-	if inp == '2':
-		inp = '0'
-	try:
-		score = float(inp)
-		assert 0 <= score <= 1
-		return score
-	except ValueError or AssertionError:
-		print("invalid inp")
-		return _get_input()
+def raterate():
+	while True:
+		i1 = int(np.random.random() * num_songs)
+		i2 = i1 + int(((np.random.random() - .5) * COMPETE_RANGE))
+		_check_indecies(i1, i2)
 
 
-def compare(song1: Song, song2: Song):
+def raterate_fixed(song1):
+	while True:
+		i1 = all_songs.index(song1)
+		i2 = i1 + int(((np.random.random() - .5) * COMPETE_RANGE))
+
+		_check_indecies(i1, i2)
+
+
+def raterate_min_percentile(percentile: float):
+	assert 0 <= percentile <= 100
+
+	scale_factor = 1 - percentile / 100
+	new_range = num_songs * scale_factor
+	shift = num_songs * percentile / 100
+
+	while True:
+		i1 = int(np.random.random() * new_range + shift)
+		i2 = i1 + int(((np.random.random() - .5) * int(COMPETE_RANGE * scale_factor)))
+
+		_check_indecies(i1, i2)
+
+
+def _check_indecies(i1: int, i2: int):
+	if 0 <= i2 < num_songs:
+		return
+
+	if i1 == i2:
+		# Edge cases
+		if i1 == 0:
+			i2 += 1
+		elif i1 + 1 == num_songs:
+			i2 -= 1
+		# General case
+		elif np.random.random() > .5:
+			i2 += 1
+		else:
+			i2 -= 1
+
+	_compare(all_songs[i1], all_songs[i2])
+
+
+def _compare(song1: Song, song2: Song):
 	print(song1)
 	print('vs.')
 	print(song2)
@@ -57,12 +89,28 @@ def compare(song1: Song, song2: Song):
 	print('Elo:', song1.elo, song2.elo)
 	print()
 
-	all_songs.delete(song1)
-	all_songs.delete(song2)
-	insert([song1, song2])
+	all_songs.remove(song1)
+	all_songs.remove(song2)
+	_insert([song1, song2])
 
 
-def insert(songs: list):
+def _get_input():
+	inp = input()
+	if inp == 'e':
+		# export_songs()
+		raise SystemExit
+	if inp == '2':
+		inp = '0'
+	try:
+		assert 0 <= inp <= 1
+		score = float(inp)
+		return score
+	except ValueError:
+		print("invalid input, type 'e' to exit")
+		return _get_input()
+
+
+def _insert(songs: list):
 	global all_songs
 	songs.sort()
 
@@ -84,27 +132,6 @@ def insert(songs: list):
 	all_songs = new_list
 
 
-def raterate():
-	i1 = int(np.random.random() * num_songs)
-	i2 = i1 + int(((np.random.random() - .5) * COMPETE_RANGE))
-
-	if i1 != i2 and 0 <= i2 < num_songs:
-		compare(all_songs[i1], all_songs[i2])
-
-	raterate()
-
-
-def raterate_fixed(song1: Song):
-	i1 = all_songs.index(song1)
-	i2 = i1 + int(((np.random.random() - .5) * COMPETE_RANGE))
-
-	if i1 != i2 and 0 <= i2 < num_songs:
-		compare(song1, all_songs[i2])
-
-	raterate_fixed(song1)
-
-
 import_songs()
-all_songs = [2, 4, 6, 8, 10]
 num_songs = len(all_songs)
 # raterate()
