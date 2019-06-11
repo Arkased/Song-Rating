@@ -37,11 +37,8 @@ def raterate():
     while inp != 's':
         i1 = int(np.random.random() * num_songs)
         i2 = i1 + int(((np.random.random() - .5) * COMPETE_RANGE))
-        if i2 < 0:
-            i2 = 0
-        elif i2 >= num_songs:
-            i2 = num_songs - 1
-        if i1 != i2:
+
+        if i1 != i2 and 0 <= i2 < num_songs:
             song1 = songs[i1]
             song2 = songs[i2]
 
@@ -52,7 +49,7 @@ def raterate():
             update(song1, song2, _get_input(), k)
             print(song1.elo)
             print(song2.elo)
-            songs.sort()
+            songs.sort() # TODO: optimize
 
 
 def _get_input():
@@ -69,7 +66,7 @@ def _get_input():
         inp = '0'
     try:
         score = float(inp)
-        assert 0 <= inp <= 1
+        assert 0 <= score <= 1
         return score
     except ValueError or AssertionError:
         print("invalid inp")
