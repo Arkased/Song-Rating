@@ -10,6 +10,7 @@ def _expected(a, b):
 	Calculate expected score of a in a match against b
 	:param a: Elo rating for player a
 	:param b: Elo rating for player b
+	:return: expected score of a
 	"""
 	q_a = _q(a)
 	q_b = _q(b)
@@ -31,7 +32,8 @@ def _elo(old, exp, score, k=32):
 	:param old: The previous Elo rating
 	:param exp: The expected score for this match
 	:param score: The actual score for this match
-	:param k: The _MIN_K-factor for Elo (default: 32)
+	:param k: The k-factor for Elo (default: 32)
+	:return: the new elo
 	"""
 	return old + int(k * (score - exp))
 
@@ -43,7 +45,6 @@ def update(song_a: Song, song_b: Song, score, min_k=20):
 	:param song_b: second song
 	:param score: score of song1, 0 for loss 1 for win
 	:param min_k: minimum weight of the match, to be scaled up by abnormal performance
-	:return: void
 	"""
 	assert 0 <= score <= 1
 

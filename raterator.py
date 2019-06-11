@@ -16,14 +16,25 @@ COMPETE_RANGE = 20  # all_songs can compete against other all_songs within +-COM
 
 
 def import_songs(file=DEFAULT_FILE):
+	"""
+	Imports songs from a .csv file. Format should be song_name, artist, elo_rating with no header columns. I used
+	http://www.playlist-converter.net/ to convert my Spotify playlist into the desired format, after manually removing
+	the header row and quotes.
+	:param file: .csv file from which to import
+	"""
 	global all_songs
 	with open(file, newline='\n', encoding='utf-8') as csvfile:
 		inp = list(reader(csvfile))
 
-	all_songs = [Song(row[0], row[1], int(row[2])) for row in inp]
+	all_songs = [Song(*row) for row in inp if row]
 
 
-def export_songs(file=DEFAULT_FILE, print_output=True):
+def export_songs(file=DEFAULT_FILE, print_output=False):
+	"""
+	Exports songs to a .csv file, sorted based on rating (ascending) with new ratings. Overwrites files.
+	:param file: .csv file onto which to write
+	:param print_output: whether or not to print the array to console
+	"""
 	song_data = [[song.name, song.artist, str(song.elo)] for song in all_songs]
 	if print_output:
 		print(song_data)
@@ -33,6 +44,9 @@ def export_songs(file=DEFAULT_FILE, print_output=True):
 
 
 def raterate():
+	"""
+	Rates songs by comparing each to a neighbor (defined based on constant COMPETE_RANGE).
+	"""
 	while True:
 		i1 = int(np.random.random() * num_songs)
 		i2 = i1 + int(((np.random.random() - .5) * COMPETE_RANGE))
@@ -40,6 +54,10 @@ def raterate():
 
 
 def raterate_fixed(song1):
+	"""
+	Rates a fixed song against its neighbors.
+	:param song1: song to rate
+	"""
 	while True:
 		i1 = all_songs.index(song1)
 		i2 = i1 + int(((np.random.random() - .5) * COMPETE_RANGE))
@@ -48,6 +66,11 @@ def raterate_fixed(song1):
 
 
 def raterate_min_percentile(percentile: float):
+	"""
+	Rates songs above a certain percentile.
+	:param percentile:
+	:return:
+	"""
 	assert 0 <= percentile <= 100
 
 	scale_factor = 1 - percentile / 100
@@ -62,6 +85,11 @@ def raterate_min_percentile(percentile: float):
 
 
 def _check_indecies(i1: int, i2: int):
+	"""
+	Checks to ensure the indecies for comparison are different (different songs) and within range.
+	:param i1: first index
+	:param i2: second index
+	"""
 	if 0 <= i2 < num_songs:
 		return
 
@@ -81,6 +109,11 @@ def _check_indecies(i1: int, i2: int):
 
 
 def _compare(song1: Song, song2: Song):
+	"""
+	Compares two songs, printing their names to console and adjusting their ratings based on input.
+	:param song1: first song
+	:param song2: second song
+	"""
 	print(song1)
 	print('vs.')
 	print(song2)
@@ -95,6 +128,10 @@ def _compare(song1: Song, song2: Song):
 
 
 def _get_input():
+	"""
+	Function to handle input from console. Handles invalid input and exits on 'e'.
+	:return: valid input, a float in the interval [0,1], or none of exits
+	"""
 	inp = input()
 	if inp == 'e':
 		# export_songs()
@@ -111,6 +148,10 @@ def _get_input():
 
 
 def _insert(songs: list):
+	"""
+	Inserts a collection elements into all_songs, updating all_songs.
+	:param songs: elements to insert
+	"""
 	global all_songs
 	songs.sort()
 

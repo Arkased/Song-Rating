@@ -11,7 +11,7 @@ class Song:
 	NUM_TRACKED_RECENT = 10
 
 	def __init__(self, name, artist, elo=INIT_ELO):
-		self.elo = elo
+		self.elo = int(elo)
 		self.artist = artist
 		self.name = name
 		self.recent_total_prob = []
@@ -21,9 +21,6 @@ class Song:
 	def __lt__(self, other):
 		return self.elo < other.elo
 
-	def args(self):
-		return self.name + ',' + self.artist + ',' + str(self.elo)
-
 	def __repr__(self):
 		return 'Song(' + self.name + ', ' + self.artist + ', ' + str(self.elo) + ')'
 
@@ -31,6 +28,11 @@ class Song:
 		return self.name + ' by ' + self.artist  # + ' (' + str(self.elo) + ')'
 
 	def update_recent(self, p, score):
+		"""
+		Updates tracked recent matches, removing the oldest one if limit is reached.
+		:param p: probability of winning (float in range [0,1])
+		:param score: actual score
+		"""
 		assert 0 <= self.num_recent <= self.NUM_TRACKED_RECENT
 
 		if not self.recent_total_prob:
@@ -49,11 +51,19 @@ class Song:
 		self.num_recent += 1
 
 	def reset_recent(self):
+		"""
+		Resets tracked recent matches, removing all.
+		"""
 		self.recent_total_prob = []
 		self.recent_score = []
 		self.num_recent = 0
 
 	def calc_perf_z(self):
+		"""
+		Calculates the z-score of recent matches, using total score and the normal distribution to approximate
+		repeated matches.
+		:return: z-score
+		"""
 		if not self.recent_total_prob:
 			return 0
 
