@@ -12,33 +12,40 @@ from elo import update
 
 k = 22
 DEFAULT_FILE = 'songs.csv'
-DELTA = 10
+COMPETE_RANGE = 10  # songs can compete against other songs within +-COMPETE_RANGE/2 places
+
+
 def import_songs(file=DEFAULT_FILE):
-    with open(file, newline = '\n', encoding='utf-8') as csvfile:
+    with open(file, newline='\n', encoding='utf-8') as csvfile:
         inp = list(reader(csvfile))
-    
+
     return [Song(row[0], row[1], int(row[2])) for row in inp]
+
 
 def export_songs(file=DEFAULT_FILE):
     song_data = [[song.name, song.artist, str(song.elo)] for song in songs]
     print(song_data)
-    with open(file, 'w', newline = '\n', encoding='utf-8') as f:
+    with open(file, 'w', newline='\n', encoding='utf-8') as f:
         write = writer(f)
         write.writerows(song_data)
-    #np.savetxt(file, song_data, delimiter = ",", newline = '\n', encoding='utf-8')
+    # np.savetxt(file, song_data, delimiter = ",", newline = '\n', encoding='utf-8')
 
-#songs = import_songs()
+
+# songs = import_songs()
 num_songs = len(songs)
 
-#i1 = int(.8 * num_songs)
-#song1 = songs[i1]
+
+# i1 = int(.8 * num_songs)
+# song1 = songs[i1]
+
+
 def raterate():
     inp = ''
     while inp != 's':
         global song1
         i1 = int(np.random.random() * num_songs)
-        #i1 = songs.index(song1)
-        i2 = i1 + int(((np.random.random() - .5) * DELTA))
+        # i1 = songs.index(song1)
+        i2 = i1 + int(((np.random.random() - .5) * COMPETE_RANGE))
         if i2 < 0:
             i2 = 0
         elif i2 >= num_songs:
@@ -54,6 +61,7 @@ def raterate():
             print(song2.elo)
             songs.sort()
         
+
 def get_input():
     inp = input()
     if inp == 'k':
@@ -69,10 +77,12 @@ def get_input():
     inp = float(inp)
     assert 0 <= inp <= 1
     return inp
-    
+
+
 def clean(song):
     song.name = song.name.replace(',', '')
     song.artist = song.artist.replace(',', '')
     return song
-    
+
+
 raterate()
