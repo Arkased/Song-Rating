@@ -49,6 +49,7 @@ def update(song_a: Song, song_b: Song, score, min_k=20):
 
 	k_a = min_k * _BONUS_BASE ** abs(song_a.calc_perf_z())
 	k_b = min_k * _BONUS_BASE ** abs(song_b.calc_perf_z())
+	print("k:", k_a, k_b)
 
 	exp_a = _expected(song_a.elo, song_b.elo)
 	exp_b = 1 - exp_a

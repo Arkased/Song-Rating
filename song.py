@@ -32,6 +32,7 @@ class Song:
 	def update_recent(self, p, score):
 		if self.recent_total_prob is None:
 			self.recent_total_prob = p
+			self.recent_score = score
 			self.num_recent = 1
 		else:
 			self.recent_total_prob += p
@@ -44,9 +45,15 @@ class Song:
 		self.num_recent = 0
 
 	def calc_perf_z(self):
+		if self.recent_total_prob is None:
+			return 0
+
 		n = self.num_recent
-		p = self.recent_total_prob / n
-		x = self.recent_score / n
+		mu = self.recent_total_prob
+		p = mu / n
+		x = self.recent_score
 		q = 1 - p
 
-		return x - p / (n * p * q) ** .5
+		print(x, mu)
+
+		return (x - mu) / (n * p * q) ** .5

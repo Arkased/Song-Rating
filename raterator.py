@@ -33,28 +33,39 @@ def export_songs(file=DEFAULT_FILE, print_output=True):
 
 
 def raterate():
-	while True:
-		i1 = int(np.random.random() * num_songs)
-		i2 = i1 + int(((np.random.random() - .5) * COMPETE_RANGE))
+	i1 = int(np.random.random() * num_songs)
+	i2 = i1 + int(((np.random.random() - .5) * COMPETE_RANGE))
 
-		if i1 != i2 and 0 <= i2 < num_songs:
-			song1 = songs[i1]
-			song2 = songs[i2]
+	if i1 != i2 and 0 <= i2 < num_songs:
+		compare(songs[i1], songs[i2])
 
-			print(song1)
-			print('vs.')
-			print(song2)
+	raterate()
 
-			update(song1, song2, _get_input(), _MIN_K)
-			print(song1.elo)
-			print(song2.elo)
-			songs.sort()  # TODO: optimize
+
+def compare(song1: Song, song2: Song):
+	print(song1)
+	print('vs.')
+	print(song2)
+
+	update(song1, song2, _get_input(), _MIN_K)
+	print('Elo:', song1.elo, song2.elo)
+	songs.sort()  # TODO: optimize
+
+
+def raterate_fixed(song1: Song):
+	i1 = songs.index(song1)
+	i2 = i1 + int(((np.random.random() - .5) * COMPETE_RANGE))
+
+	if i1 != i2 and 0 <= i2 < num_songs:
+		compare(song1, songs[i2])
+
+	raterate_fixed(song1)
 
 
 def _get_input():
 	inp = input()
 	if inp == 'e':
-		export_songs()
+		# export_songs()
 		raise SystemExit
 	if inp == '2':
 		inp = '0'
